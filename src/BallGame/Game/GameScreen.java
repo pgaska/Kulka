@@ -2,22 +2,27 @@ package BallGame.Game;
 
 import Gui.*;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.awt.event.*;
 
 /**
- * Klasa opisująca główne okno gry
+ * Klasa opisująca panel prezentjący aktualną rozgrywkę
  */
-public class GameScreen extends JPanel implements Runnable, KeyListener, CollisionListener, ActionListener{
-
+public class GameScreen extends JPanel implements Runnable, KeyListener,CollisionListener, ActionListener{
+    /**
+     * Główne okno
+     */
     private GameWindow gameWindow;
     /**
      * Kulka, którą sterujemy w grze
      */
-    private Ball ball;
+    public Ball ball;
     /**
      * Tablica przeszkód
      */
@@ -79,13 +84,9 @@ public class GameScreen extends JPanel implements Runnable, KeyListener, Collisi
      */
     public Thread kicker = null;
     /**
-     *Liczba poziomów w grze
-     */
-    private final int numberOfLevels = 2;
-    /**
      * Ilość zebranych gwiaxdek
      */
-    private int collectedStars = 0;
+    private int collectedStars;
     /**
      * Czy gra jest zatrzymana
      */
@@ -98,6 +99,10 @@ public class GameScreen extends JPanel implements Runnable, KeyListener, Collisi
      * Czas potrzebny do uzyskania dodatkowych punktów za poziom
      */
     private double timeForBonus;
+    /**
+     * Obraz wyświetlany w trakcie pauzy
+     */
+    private Image pauseImage;
 
     /**
      * Konstruktor głównego panelu gry. Przypisuje wartości zmiennym i dodaje GUI.
@@ -105,10 +110,16 @@ public class GameScreen extends JPanel implements Runnable, KeyListener, Collisi
     public GameScreen(GameWindow gameWindow) {
         this.setPreferredSize(new Dimension(Constants.mainMenuFrameWidth,Constants.mainMenuFrameHeight));
         this.gameWindow = gameWindow;
+        isPaused=false;
+        try {
+            pauseImage = ImageIO.read(new File("Images\\pauza.png"));
+        }catch(IOException e){
+            e.printStackTrace();
+        }
         setBackground(Color.white);
         timer=Constants.initialTime;
+        collectedStars=0;
         currentLevel=1;
-        isPaused=false;
         currentLives = Constants.initialLives;
         currentPoints = Constants.initialPoints;
         drawFirstLevel();
@@ -142,6 +153,11 @@ public class GameScreen extends JPanel implements Runnable, KeyListener, Collisi
             for(MovingObstacle m : movingObstacles){
                 g.fillRect(m.x, m.y, m.width, m.height);
             }
+        }
+        if(isPaused){
+            g.drawImage(pauseImage, (int)((Constants.mainMenuFrameWidth/2)-(Constants.mainMenuFrameWidth/4)),
+                    (int)((Constants.mainMenuFrameHeight/2)-(Constants.mainMenuFrameHeight/8)), (int)(Constants.mainMenuFrameHeight/2),
+                    (int)(Constants.mainMenuFrameHeight/4), this);
         }
 
     }
@@ -182,30 +198,7 @@ public class GameScreen extends JPanel implements Runnable, KeyListener, Collisi
         textGUI.add(pointsLabel);
         this.add(textGUI);
         this.setBorder(BorderFactory.createEmptyBorder(10,0,0,-500));
-    }
-
-    /**
-     * Metoda rysowująca kolejną klatkę do bufora
-     */
-    private void updateOffScreen(){
-        offScreenGraphics.clearRect(0, 0, offScreen.getWidth(this), offScreen.getHeight(this));
-        if(ball != null){
-            offScreenGraphics.setColor(Ball.color);
-            offScreenGraphics.fillOval(ball.x, ball.y, ball.width, ball.height);
-        }
-        if(!obstacles.isEmpty()){
-            offScreenGraphics.setColor(Obstacle.color);
-            for(Obstacle o : obstacles){
-                offScreenGraphics.fillRect(o.x, o.y, o.width, o.height);
-            }
-        }
-        if(portal != null){
-            offScreenGraphics.setColor(Portal.color);
-            offScreenGraphics.fillRect(portal.x, portal.y, portal.width, portal.height);
-        }
-        if(star != null && !star.isCollected){
-            offScreenGraphics.drawImage(Star.starImage, star.x, star.y, star.width, star.height, this);
-        }
+        (kicker = new Thread(this)).start();
     }
 
     /**
@@ -227,6 +220,9 @@ public class GameScreen extends JPanel implements Runnable, KeyListener, Collisi
             o.resize(w, h);
         }
         star.resize(w, h);
+        for(MovingObstacle o :movingObstacles){
+            o.resize(w, h);
+        }
         (kicker = new Thread(this)).start();
     }
 
@@ -235,7 +231,6 @@ public class GameScreen extends JPanel implements Runnable, KeyListener, Collisi
      */
     public void run() {
         while (kicker == Thread.currentThread()) {
-            //updateOffScreen();
             ball.updatePosition(this.getWidth(), this.getHeight());
             for(MovingObstacle m : movingObstacles){
                 m.updatePosition(this.getWidth());
@@ -342,7 +337,7 @@ public class GameScreen extends JPanel implements Runnable, KeyListener, Collisi
     private void loadNextLevel(){
         currentLevel++;
         cleanLevel();
-        if(currentLevel<=numberOfLevels){
+        if(currentLevel<=Constants.numberOfLevels){
             Parser parser = new Parser(Constants.filePath+currentLevel+".txt");
             if(parser.getBall() != null){
                 ball = parser.getBall();
@@ -462,12 +457,6 @@ public class GameScreen extends JPanel implements Runnable, KeyListener, Collisi
                 unPauseGame();
             }
         }
-        if(e.getSource() == gameWindow.pauseScreen.resumeButton){
-            unPauseGame();
-        }
-        if(e.getSource() == gameWindow.pauseScreen.exitButton){
-            System.exit(0);
-        }
     }
 
     /**
@@ -479,6 +468,7 @@ public class GameScreen extends JPanel implements Runnable, KeyListener, Collisi
         if(collectedStars==3){
             collectedStars=0;
             currentLives++;
+            lifeLabel.setText(Constants.lifeLabelText + currentLives);
         }
     }
 
@@ -501,6 +491,8 @@ public class GameScreen extends JPanel implements Runnable, KeyListener, Collisi
      */
     private void gameOver(){
         isPaused = true;
+        if(currentLives == 1)
+            currentLives--;
         currentPoints+=currentLives*Constants.pointsForLive;
         new GameOverDialog(currentPoints);
         new MenuWindow();
@@ -514,12 +506,7 @@ public class GameScreen extends JPanel implements Runnable, KeyListener, Collisi
     private void pauseGame(){
         isPaused = true;
         kicker = null;
-        gameWindow.pauseScreen = new PauseScreen(this);
-        gameWindow.pauseScreen.setSize(Constants.mainMenuFrameWidth/2, Constants.mainMenuFrameHeight/2);
-        //pauseScreen.setBorder(new Border(Constants.))
-        gameWindow.add(gameWindow.pauseScreen);
-        gameWindow.lp.add(gameWindow.pauseScreen, Integer.valueOf(2));
-        gameWindow.lp.setPreferredSize(new Dimension(Constants.mainMenuFrameWidth,Constants.mainMenuFrameHeight));
+        repaint();
     }
 
     /**
@@ -528,8 +515,5 @@ public class GameScreen extends JPanel implements Runnable, KeyListener, Collisi
     private void unPauseGame(){
         isPaused = false;
         (kicker = new Thread(this)).start();
-        gameWindow.lp.remove(gameWindow.pauseScreen);
-        //gameWindow.pauseScreen.revalidate();
-        //gameWindow.pauseScreen.repaint();
     }
 }

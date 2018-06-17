@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.Properties;
 
 /**
- * Klasa opisująca okno pojawiające się po zakończeniu gry
+ * Klasa opisująca okno pojawiające się po zakończeniu gry. Aktualizuje listę najlepszych wyników.
  */
 public class GameOverDialog extends JDialog {
 

@@ -20,7 +20,7 @@
 <portalWidth>0.08</portalWidth>
 <starWidth>0.05</starWidth>
 <filePath>ConfigFiles\\level</filePath>
-<numberOfLevels>2</numberOfLevels>
+<numberOfLevels>5</numberOfLevels>
 <starImagePath>Images\\star.png</starImagePath>
 <pointsForLive>100</pointsForLive>
 <highScoresFile>ConfigFiles\\highScores</highScoresFile>

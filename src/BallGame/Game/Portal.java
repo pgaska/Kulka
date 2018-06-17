@@ -11,6 +11,11 @@ public class Portal extends GameObject implements CollisionListener{
      */
     public static final Color color = Constants.portalColor;
 
+    /**
+     * Konstruktor portalu
+     * @param x współrzędna x
+     * @param y współrzędna y
+     */
     public Portal(int x, int y){
         this.x = x;
         this.y = y;
@@ -20,6 +25,11 @@ public class Portal extends GameObject implements CollisionListener{
         this.normalizedHeight = Constants.portalWidth;
     }
 
+    /**
+     * Metoda wywoływana po kolizji kulki z portalem
+     * @param source główne okno gry
+     * @param e przesyłane zdarzenie
+     */
     public void collided(GameScreen source, CollisionEvent e){
         source.handleCollision(e);
     }
