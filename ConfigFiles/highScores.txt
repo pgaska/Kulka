@@ -1,4 +1,7 @@
-1 999 lk 
-2 200 player 
-3 100 mariusz 
-4 100 jan
+1 1105 pawel 
+2 1005 123 
+3 999 lk 
+4 902 jan 
+5 200 kl
+6 100 d 
+7 0 jjjj 

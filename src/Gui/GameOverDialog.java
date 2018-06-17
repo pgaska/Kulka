@@ -1,6 +1,5 @@
 package Gui;
 
-import BallGame.Game.BallApplication;
 import BallGame.Game.Constants;
 import javafx.util.Pair;
 
@@ -18,6 +17,7 @@ public class GameOverDialog extends JDialog {
     private ArrayList<Pair<Integer, String>> scores = new ArrayList<>();
     /**
      * Konstruktor okna
+     * @param score wynik uzyskany przez gracza
      */
     public GameOverDialog(int score){
         String s = (String)JOptionPane.showInputDialog(this, "Twoj wynik: "+ score + "\nPodaj swoje imie", "Gra skonczona!", JOptionPane.PLAIN_MESSAGE);
@@ -79,9 +79,10 @@ public class GameOverDialog extends JDialog {
      * @param score Wynik uzyskany przez gracza
      */
     private void saveHighScore(String nick ,int score){
-        scores.remove(scores.size() -1);
         scores.add(new Pair<Integer, String>(score, nick));
         sortHighScores();
+        if(scores.size()>15)
+            scores.remove(scores.size() -1);
 
         File inFile = new File(Constants.highScoresFile);
         File tempFile = new File("ConfigFiles\\temp.txt");

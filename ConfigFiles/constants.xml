@@ -23,7 +23,9 @@
 <numberOfLevels>5</numberOfLevels>
 <starImagePath>Images\\star.png</starImagePath>
 <pointsForLive>100</pointsForLive>
-<highScoresFile>ConfigFiles\\highScores</highScoresFile>
+<highScoresFile>ConfigFiles\\highScores.txt</highScoresFile>
+<maximumHorizontalVelocity>0.0005</maximumHorizontalVelocity>
+<maximumVerticalVelocity>0.0005</maximumVerticalVelocity>
 </constants>
 
 

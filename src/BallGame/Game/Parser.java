@@ -37,6 +37,7 @@ public class Parser {
     private float g = 0f;
     /**
      * Konstruktor klasy Parser
+     * @param path ścieżka do pliku
      */
     public Parser(String path){
         loadLevelData(path);

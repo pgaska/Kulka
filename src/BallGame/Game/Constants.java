@@ -104,6 +104,14 @@ public final class Constants {
      * ścieżka pliku z tabelą najlepszych wynków
      */
     public static String highScoresFile;
+    /**
+     * Maksymalna prędkość kulki w poziomie
+     */
+    public static float maximumHorizontalVelocity;
+    /**
+     * Maksymalna prędkość kulki w pionie
+     */
+    public static float maximumVerticalVelocity;
 
     static{
         parseConstantsFile();
@@ -141,6 +149,8 @@ public final class Constants {
             String ballColorString=doc.getElementsByTagName("ballColor").item(0).getTextContent();
             pointsForLive=Integer.parseInt(doc.getElementsByTagName("pointsForLive").item(0).getTextContent());
             highScoresFile=doc.getElementsByTagName("highScoresFile").item(0).getTextContent();
+            maximumHorizontalVelocity=Float.parseFloat(doc.getElementsByTagName("maximumHorizontalVelocity").item(0).getTextContent());
+            maximumVerticalVelocity=Float.parseFloat(doc.getElementsByTagName("maximumVerticalVelocity").item(0).getTextContent());
             try {
                 Field field = Class.forName("java.awt.Color").getField(ballColorString);
                 ballColor = (Color)field.get(null);

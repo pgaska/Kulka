@@ -76,10 +76,6 @@ public class GameScreen extends JPanel implements Runnable, KeyListener,Collisio
      */
     private Image offScreen = null;
     /**
-     * Komponent graficzny bufora
-     */
-    private Graphics offScreenGraphics = null;
-    /**
      * Główny wątek programu
      */
     public Thread kicker = null;
@@ -106,6 +102,7 @@ public class GameScreen extends JPanel implements Runnable, KeyListener,Collisio
 
     /**
      * Konstruktor głównego panelu gry. Przypisuje wartości zmiennym i dodaje GUI.
+     * @param gameWindow główne okno gry
      */
     public GameScreen(GameWindow gameWindow) {
         this.setPreferredSize(new Dimension(Constants.mainMenuFrameWidth,Constants.mainMenuFrameHeight));
@@ -163,15 +160,6 @@ public class GameScreen extends JPanel implements Runnable, KeyListener,Collisio
     }
 
     /**
-     * Rozpoczyna rysowanie do bufora
-     */
-    public void addNotify() {
-        super.addNotify();
-        offScreen = createImage(getPreferredSize().width, getPreferredSize().height);
-        offScreenGraphics = offScreen.getGraphics();
-    }
-
-    /**
      * Metoda rysująca pierwszy poziom gry
      */
     private void drawFirstLevel(){
@@ -207,13 +195,12 @@ public class GameScreen extends JPanel implements Runnable, KeyListener,Collisio
      * @param h wysokość ekranu
      */
     public void updateOffscreenSize(final int w, final int h) {
-        if (kicker != null) {
-            Thread k = kicker;
-            kicker = null;
-            k.interrupt();
-        }
-        offScreen = createImage(w, h);
-        offScreenGraphics = offScreen.getGraphics();
+//        if (kicker != null) {
+//            Thread k = kicker;
+//            kicker = null;
+//            k.interrupt();
+//        }
+        kicker = null;
         ball.resize(w, h);
         portal.resize(w, h);
         for(Obstacle o : obstacles){
@@ -239,7 +226,7 @@ public class GameScreen extends JPanel implements Runnable, KeyListener,Collisio
             try {
                 Thread.sleep(timeBetweenFrames);
             } catch (InterruptedException ie) {
-                ie.printStackTrace();
+
             }
             isCollidingWithObstacle();
             isCollidingWithStar();
@@ -385,13 +372,21 @@ public class GameScreen extends JPanel implements Runnable, KeyListener,Collisio
     @Override
     public void keyPressed(KeyEvent e){
         if(e.getKeyCode() == KeyEvent.VK_UP){
-            ball.keyPressed(e);
+            ball.isAcceleratingVertical = false;
+            ball.isSlowingVertical = true;
+            ball.moveUp();
         }
         if(e.getKeyCode() == KeyEvent.VK_RIGHT){
-            ball.keyPressed(e);
+            ball.isAcceleratingHorizontal = true;
+            ball.isSlowingHorizontal = false;
+            ball.isMovingRight = true;
+            ball.moveRight();
         }
         if(e.getKeyCode() == KeyEvent.VK_LEFT){
-            ball.keyPressed(e);
+            ball.isAcceleratingHorizontal = true;
+            ball.isSlowingHorizontal = false;
+            ball.isMovingRight = false;
+            ball.moveLeft();
         }
     }
     /**
@@ -400,14 +395,17 @@ public class GameScreen extends JPanel implements Runnable, KeyListener,Collisio
      */
     @Override
     public void keyReleased(KeyEvent e){
-        if(e.getKeyCode() == KeyEvent.VK_UP){
-            ball.keyReleased(e);
+        if(e.getKeyCode() == KeyEvent.VK_UP) {
+            ball.isAcceleratingVertical = true;
+            ball.isSlowingVertical = false;
         }
-        if(e.getKeyCode() == KeyEvent.VK_RIGHT){
-            ball.keyReleased(e);
+        if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            ball.isAcceleratingHorizontal = false;
+            ball.isSlowingHorizontal = true;
         }
         if(e.getKeyCode() == KeyEvent.VK_LEFT){
-            ball.keyReleased(e);
+            ball.isAcceleratingHorizontal = false;
+            ball.isSlowingHorizontal = true;
         }
         if(e.getKeyCode() == KeyEvent.VK_P){
             if(!isPaused){
@@ -478,7 +476,7 @@ public class GameScreen extends JPanel implements Runnable, KeyListener,Collisio
     private void looseLife(){
         currentLives--;
         lifeLabel.setText(Constants.lifeLabelText + currentLives);
-        if(currentLives>1){
+        if(currentLives>=1){
             ball.reset();
         }
         else{
@@ -490,13 +488,13 @@ public class GameScreen extends JPanel implements Runnable, KeyListener,Collisio
      * Metoda wywoływaa po przegraniu gry. Dodaje punkty za zachowanie żyć i wyświetla okno dialogowe proszące o podanie nicku
      */
     private void gameOver(){
+        kicker = null;
         isPaused = true;
         if(currentLives == 1)
             currentLives--;
         currentPoints+=currentLives*Constants.pointsForLive;
         new GameOverDialog(currentPoints);
         new MenuWindow();
-        kicker = null;
         gameWindow.dispose();
     }
 
