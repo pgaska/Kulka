@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<constants>
+
+<mainMenuFrameWidth>800</mainMenuFrameWidth>
+<mainMenuFrameHeight>800</mainMenuFrameHeight>
+<gameTitle>Kulka</gameTitle>
+<playButtonText>Rozpocznij gre</playButtonText>
+<highScoresButtonText>Lista wynikow</highScoresButtonText>
+<exitButtonText>Wyjscie</exitButtonText>
+<lifeLabelText>Życia: </lifeLabelText>
+<initialLives>5</initialLives>
+<pointsLabel>Punkty: </pointsLabel>
+<initialPoints>0</initialPoints>
+<timeLabel>Czas: </timeLabel>
+<initialTime>0</initialTime>
+<ballRadius>0.05</ballRadius>
+<ballColor>blue</ballColor>
+<obstacleColor>black</obstacleColor>
+<portalColor>red</portalColor>
+<portalWidth>0.08</portalWidth>
+<starWidth>0.05</starWidth>
+<filePath>ConfigFiles\\level</filePath>
+<numberOfLevels>2</numberOfLevels>
+<starImagePath>Images\\star.png</starImagePath>
+<pointsForLive>100</pointsForLive>
+<highScoresFile>ConfigFiles\\highScores</highScoresFile>
+</constants>
+
+
